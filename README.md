@@ -59,7 +59,7 @@ Duration of the comparison [0 = forever] (default: 0s)
 Excludes a value from both json for the specified path. A [path](#path-syntax) is a series of keys separated by a dot or #. Default results.#.payer_costs.#.payment_method_option_id
 
 #### `--parameter cutting`
-Separate in files by the parameters parametrized
+Separate in files by the parameters parametrized. Default caller_id,display_filtered,differential_pricing_id,bins,public_key
 
 ## Path syntax
 
