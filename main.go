@@ -47,13 +47,13 @@ func newApp() *cli.App {
 		&cli.IntFlag{
 			Name:    "ratelimit",
 			Aliases: []string{"r"},
-			Value:   5,
+			Value:   67,
 			Usage:   "operation rate limit per second",
 		},
 		&cli.IntFlag{
 			Name:    "workers",
 			Aliases: []string{"w"},
-			Value:   1,
+			Value:   600,
 			Usage:   "number of workers running concurrently",
 		},
 		&cli.BoolFlag{
