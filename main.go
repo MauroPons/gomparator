@@ -104,17 +104,17 @@ func initLogger() {
 }
 
 type options struct {
-	filePath       		string
-	hosts          		[]string
-	headers        		[]string
-	timeout        		time.Duration
-	duration       		time.Duration
-	workers        		int
-	rateLimit      		int
-	statusCodeOnly 		bool
-	maxBody        		int64
-	exclude        		string
-	parametersCutting   []string
+	filePath          string
+	hosts             []string
+	headers           []string
+	timeout           time.Duration
+	duration          time.Duration
+	workers           int
+	rateLimit         int
+	statusCodeOnly    bool
+	maxBody           int64
+	exclude           string
+	parametersCutting []string
 }
 
 func action(c *cli.Context) error {
@@ -185,15 +185,15 @@ func createTmpFile(filePath string, callerScope string) *os.File {
 	now := time.Now()
 	dir, file := filepath.Split(filePath)
 	chanelScope := "no-caller-scope"
-	if callerScope != ""{
+	if callerScope != "" {
 		chanelScope = callerScope
 	}
 
 	fileLogDir = dir + now.Format("20060102150405")
-	os.Mkdir(fileLogDir,os.FileMode(int(0777)))
+	os.Mkdir(fileLogDir, os.FileMode(int(0777)))
 
 	fileLogDir = fileLogDir + "/" + chanelScope
-	os.Mkdir(fileLogDir,os.FileMode(int(0777)))
+	os.Mkdir(fileLogDir, os.FileMode(int(0777)))
 
 	fileLogName = fmt.Sprintf("%s/%s.error", fileLogDir, strings.TrimSuffix(file, filepath.Ext(file)))
 
@@ -222,10 +222,10 @@ func getTotalLinesAndSeparateParameterCuts(reader io.Reader, parametersCutting [
 	count := 0
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line != "request_uri"  {
+		if line != "request_uri" {
 			for _, parameter := range parametersCutting {
-				if strings.Contains(line, parameter){
-					file := mapFiles[parameter + "-src"]
+				if strings.Contains(line, parameter) {
+					file := mapFiles[parameter+"-src"]
 					w := bufio.NewWriter(file)
 					fmt.Fprintln(w, line)
 					w.Flush()
@@ -242,11 +242,11 @@ func getTotalLinesAndSeparateParameterCuts(reader io.Reader, parametersCutting [
 	return count
 }
 
-func createFile(dir string, parameter string, extension string){
+func createFile(dir string, parameter string, extension string) {
 	dir = dir + "." + extension
 	file, err := os.Create(dir)
 	if err == nil {
-		mapFiles[parameter + "-" + extension] = file
+		mapFiles[parameter+"-"+extension] = file
 	}
 }
 

@@ -52,7 +52,7 @@ linters:
 
     # List of disabled-by-default linters that we explicitly opt-in.
     - bodyclose
-    - noctx
+    #- noctx
     - golint
     - rowserrcheck
     - stylecheck
@@ -92,8 +92,8 @@ linters:
     # testpackage
     - nestif
     # exportloopref
-    - exhaustive
-    - sqlclosecheck
+    # exhaustive
+    # sqlclosecheck
     - nolintlint
 
 service:

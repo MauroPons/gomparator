@@ -62,7 +62,7 @@ func (p *ProgressBar) Stop(fileLogName string) {
 	processParametersCuttings(fileLogName)
 }
 
-func processParametersCuttings(fileLogName string){
+func processParametersCuttings(fileLogName string) {
 	file, err := os.Open(fileLogName)
 	if err != nil {
 		panic("Error in " + fileLogName)
@@ -75,21 +75,21 @@ func processParametersCuttings(fileLogName string){
 
 	for scanner.Scan() {
 		lineTemp := scanner.Text()
-		line := lineTemp[47:len(lineTemp) -2]
+		line := lineTemp[47 : len(lineTemp)-2]
 
 		w := bufio.NewWriter(fileErrorTotal)
 		fmt.Fprintln(w, line)
 		w.Flush()
 
 		for _, parameter := range opts.parametersCutting {
-			if strings.Contains(line, parameter){
-				file := mapFiles[parameter + "-error"]
+			if strings.Contains(line, parameter) {
+				file := mapFiles[parameter+"-error"]
 				w := bufio.NewWriter(file)
 				fmt.Fprintln(w, line)
 				w.Flush()
 			}
 		}
-		countError ++
+		countError++
 	}
 
 	dir = fileLogDir + "/summary.txt"
