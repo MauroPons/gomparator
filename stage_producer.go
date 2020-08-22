@@ -52,7 +52,9 @@ func (p *producer) Produce(in <-chan URLPair) <-chan HostsPair {
 				defer wg.Done()
 				for val := range in {
 					p.limiter.Take()
-					stream <- p.produce(val)
+					if val.RelURL != "request_uri"  {
+						stream <- p.produce(val)
+					}
 				}
 			}()
 		}

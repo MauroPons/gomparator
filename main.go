@@ -16,6 +16,10 @@ import (
 )
 
 var fileLogDir string
+var fileLogName string
+var mapFiles = make(map[string]*os.File)
+var opts *options
+var countTotal int
 
 func main() {
 	initLogger()
@@ -78,6 +82,11 @@ func newApp() *cli.App {
 			Usage: "excludes a value from both json for the specified path. A path is a series of keys separated by a dot or #",
 			Value: "results.#.payer_costs.#.payment_method_option_id",
 		},
+		&cli.StringFlag{
+			Name:  "parametersCutting",
+			Usage: "check is request contains the params parametrized #",
+			Value: "caller_id,display_filtered,differential_pricing_id,bins,public_key",
+		},
 	}
 
 	app.Action = action
@@ -95,20 +104,21 @@ func initLogger() {
 }
 
 type options struct {
-	filePath       string
-	hosts          []string
-	headers        []string
-	timeout        time.Duration
-	duration       time.Duration
-	workers        int
-	rateLimit      int
-	statusCodeOnly bool
-	maxBody        int64
-	exclude        string
+	filePath       		string
+	hosts          		[]string
+	headers        		[]string
+	timeout        		time.Duration
+	duration       		time.Duration
+	workers        		int
+	rateLimit      		int
+	statusCodeOnly 		bool
+	maxBody        		int64
+	exclude        		string
+	parametersCutting   []string
 }
 
 func action(c *cli.Context) error {
-	opts := parseFlags(c)
+	opts = parseFlags(c)
 	headers := parseHeaders(opts.headers)
 
 	fetcher := NewHTTPClient(
@@ -121,13 +131,13 @@ func action(c *cli.Context) error {
 	file := openFile(opts)
 	defer file.Close()
 
-	logFile := createTmpFile(opts.filePath)
+	logFile := createTmpFile(opts.filePath, headers["X-Caller-Scopes"])
 	defer logFile.Close()
 
 	log.Printf("created log temp file in %s", logFile.Name())
 	log.SetOutput(logFile)
 
-	lines := getTotalLines(file)
+	lines := getTotalLinesAndSeparateParameterCuts(file, opts.parametersCutting)
 	// Once we count the number of lines that will be used as total for the progress bar we reset
 	// the pointer to the beginning of the file since it is much faster than closing and reopening
 	_, err := file.Seek(0, 0)
@@ -145,7 +155,7 @@ func action(c *cli.Context) error {
 	p := New(reader, producer, comparator)
 
 	p.Run(ctx)
-	bar.Stop()
+	bar.Stop(fileLogName)
 	return nil
 }
 
@@ -171,12 +181,22 @@ func openFile(opts *options) *os.File {
 	return file
 }
 
-func createTmpFile(filePath string) *os.File {
+func createTmpFile(filePath string, callerScope string) *os.File {
 	now := time.Now()
 	dir, file := filepath.Split(filePath)
+	chanelScope := "no-caller-scope"
+	if callerScope != ""{
+		chanelScope = callerScope
+	}
 
-	fileLogDir = dir + "/" + now.Format("20060102150405")
-	fileLogName := fmt.Sprintf("%s.%s.*.txt", file, fileLogDir)
+	fileLogDir = dir + now.Format("20060102150405")
+	os.Mkdir(fileLogDir,os.FileMode(int(0777)))
+
+	fileLogDir = fileLogDir + "/" + chanelScope
+	os.Mkdir(fileLogDir,os.FileMode(int(0777)))
+
+	fileLogName = fmt.Sprintf("%s/%s.error", fileLogDir, strings.TrimSuffix(file, filepath.Ext(file)))
+
 	logFileGeneral, err := os.Create(fileLogName)
 	if err != nil {
 		log.Fatal(err)
@@ -184,19 +204,50 @@ func createTmpFile(filePath string) *os.File {
 	return logFileGeneral
 }
 
-func getTotalLines(reader io.Reader) int {
+func getTotalLinesAndSeparateParameterCuts(reader io.Reader, parametersCutting []string) int {
 	scanner := bufio.NewScanner(reader)
-
 	// Set the split function for the scanning operation.
 	scanner.Split(bufio.ScanLines)
+
+	for _, parameter := range parametersCutting {
+		dir := fileLogDir + "/" + parameter
+		createFile(dir, parameter, "src")
+		createFile(dir, parameter, "error")
+	}
+
+	dir := fileLogDir + "/total.src"
+	fileTotal, _ := os.Create(dir)
 
 	// Count the lines.
 	count := 0
 	for scanner.Scan() {
-		count++
+		line := scanner.Text()
+		if line != "request_uri"  {
+			for _, parameter := range parametersCutting {
+				if strings.Contains(line, parameter){
+					file := mapFiles[parameter + "-src"]
+					w := bufio.NewWriter(file)
+					fmt.Fprintln(w, line)
+					w.Flush()
+					//mapFiles[parameter] = file
+				}
+			}
+			w := bufio.NewWriter(fileTotal)
+			fmt.Fprintln(w, line)
+			w.Flush()
+			count++
+		}
 	}
-
+	countTotal = count
 	return count
+}
+
+func createFile(dir string, parameter string, extension string){
+	dir = dir + "." + extension
+	file, err := os.Create(dir)
+	if err == nil {
+		mapFiles[parameter + "-" + extension] = file
+	}
 }
 
 func parseFlags(c *cli.Context) *options {
@@ -213,6 +264,7 @@ func parseFlags(c *cli.Context) *options {
 	opts.workers = c.Int("workers")
 	opts.rateLimit = c.Int("ratelimit")
 	opts.statusCodeOnly = c.Bool("status-code-only")
+	opts.parametersCutting = strings.Split(c.String("parametersCutting"), ",")
 	if opts.statusCodeOnly {
 		opts.maxBody = 0
 	} else {
