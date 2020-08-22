@@ -1,4 +1,4 @@
-module github.com/emacampolo/gomparator
+module github.com/MauroPons/gomparator
 
 go 1.14
 

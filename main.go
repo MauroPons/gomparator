@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -53,7 +54,7 @@ func newApp() *cli.App {
 		&cli.IntFlag{
 			Name:    "workers",
 			Aliases: []string{"w"},
-			Value:   600,
+			Value:   1000,
 			Usage:   "number of workers running concurrently",
 		},
 		&cli.BoolFlag{
@@ -74,6 +75,7 @@ func newApp() *cli.App {
 		&cli.StringFlag{
 			Name:  "exclude",
 			Usage: "excludes a value from both json for the specified path. A path is a series of keys separated by a dot or #",
+			Value: "results.#.payer_costs.#.payment_method_option_id",
 		},
 	}
 
@@ -118,7 +120,7 @@ func action(c *cli.Context) error {
 	file := openFile(opts)
 	defer file.Close()
 
-	logFile := createTmpFile()
+	logFile := createTmpFile(opts.filePath)
 	defer logFile.Close()
 
 	log.Printf("created log temp file in %s", logFile.Name())
@@ -168,9 +170,11 @@ func openFile(opts *options) *os.File {
 	return file
 }
 
-func createTmpFile() *os.File {
+func createTmpFile(filePath string) *os.File {
 	now := time.Now()
-	logFile, err := ioutil.TempFile("", fmt.Sprintf("gomparator.%s.*.txt", now.Format("20060102")))
+	_, file := filepath.Split(filePath)
+
+	logFile, err := ioutil.TempFile("", fmt.Sprintf("%s.%s.*.txt", file, now.Format("20060102")))
 	if err != nil {
 		log.Fatal(err)
 	}
