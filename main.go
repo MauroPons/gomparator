@@ -173,7 +173,7 @@ func openFile(opts *options) *os.File {
 func createTmpFile(filePath string) *os.File {
 	now := time.Now()
 	_, file := filepath.Split(filePath)
-
+	log.Info(fmt.Sprintf("Mauro - %s.%s.*.txt", file, now.Format("20060102")))
 	logFile, err := ioutil.TempFile("", fmt.Sprintf("%s.%s.*.txt", file, now.Format("20060102")))
 	if err != nil {
 		log.Fatal(err)
