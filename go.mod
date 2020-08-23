@@ -7,6 +7,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.6.6
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/olekukonko/tablewriter v0.0.4
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli/v2 v2.2.0

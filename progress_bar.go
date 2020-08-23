@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/olekukonko/tablewriter"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -92,21 +93,43 @@ func processParametersCuttings(fileLogName string) {
 		countError++
 	}
 
-	dir = fileLogDir + "/summary.txt"
+	dir = fileLogDir + "/error-summary.csv"
 	fileSummary, _ := os.Create(dir)
 	w := bufio.NewWriter(fileSummary)
-	fmt.Fprintln(w, "Error Summary")
-	fmt.Fprintln(w, fmt.Sprintln("total:", countError, "/", countTotal))
+	fmt.Fprintln(w, fmt.Sprintln("CORTE,CORRECTOS,INCORRECTOS,%CORRECTOS,%INCCORRECTOS"))
+	percentageOk, percentageError := getPercentage(countError, countTotal)
+	fmt.Fprintln(w, fmt.Sprintln("TOTAL,", countTotal, ",", countError, ",", percentageOk, ",", percentageError))
 	w.Flush()
-	fmt.Println("total:", countError, "/", countTotal)
 
 	for _, parameter := range opts.parametersCutting {
 		countTotalOk := getCountRows(parameter + "-src")
 		countTotalError := getCountRows(parameter + "-error")
-		fmt.Fprintln(w, fmt.Sprintln(parameter, ":", countTotalError, "/", countTotalOk))
-		fmt.Println(parameter, ":", countTotalError, "/", countTotalOk)
+		percentageOk, percentageError := getPercentage(countTotalError, countTotalOk)
+		fmt.Fprintln(w, fmt.Sprintln(strings.ToUpper(parameter), ",", countTotalOk, ",", countTotalError, ",", percentageOk, ",", percentageError))
 		w.Flush()
 	}
+
+	table, _ := tablewriter.NewCSV(os.Stdout, dir, true)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)   // Set Alignment
+	table.Render()
+
+}
+
+func getPercentage(totalError int, total int) (string, string) {
+	var percentageError float64
+	var percentageOk float64
+	if totalError != 0 && total != 0 {
+		percentageError = float64(totalError) * 100 / float64(total)
+		percentageOk = float64(100) - percentageError
+	}else if totalError == 0 && total != 0 {
+		percentageError = float64(0)
+		percentageOk = float64(100) - percentageError
+	}else if totalError == 0 && total == 0 {
+		percentageError = float64(0)
+		percentageOk = float64(0)
+	}
+
+	return fmt.Sprintf("%.2f", percentageOk), fmt.Sprintf("%.2f", percentageError)
 }
 
 func getCountRows(keyFile string) int {
