@@ -138,3 +138,7 @@ do
 done
 
 ```
+
+#### `Terminal summary by parameters cuts`
+
+![](termina-summary.png)
