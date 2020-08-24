@@ -4,7 +4,7 @@ gomparator compares HTTP GET JSON responses from different hosts by checking if 
 
 ## Download and install
 
-    go get -u github.com/emacampolo/gomparator
+    go get -u github.com/mauropons/gomparator
 
 ## Create a file with relative URL
 
