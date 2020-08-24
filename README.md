@@ -106,7 +106,7 @@ Given the following json input:
 
 </tbody></table>
 
-#### `Run consecutives comparations`
+#### `Run consecutive comparisons`
 Create a sh file with the next code and change vars values. ;) 
 
 ```console
