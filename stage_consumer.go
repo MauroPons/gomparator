@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,13 +21,20 @@ func NewConsumer(statusCodeOnly bool, bar *ProgressBar, log *logrus.Logger, excl
 	}
 }
 
+func appendMsgError(url string){
+	fmt.Fprintln(writeFinalErrorFile, url)
+	writeFinalErrorFile.Flush()
+}
+
 func (c *consumer) Consume(val HostsPair) {
 
 	if val.HasErrors() {
 		c.bar.IncrementError()
 		for _, v := range val.Errors {
+			//logFileTotal
 			c.log.Errorln(v)
 		}
+		appendMsgError(val.RelURL)
 		return
 	}
 
@@ -38,6 +46,7 @@ func (c *consumer) Consume(val HostsPair) {
 	if !val.EqualStatusCode() {
 		c.bar.IncrementError()
 		c.log.Warnf(val.RelURL)
+		appendMsgError(val.RelURL)
 		return
 	}
 
@@ -45,6 +54,7 @@ func (c *consumer) Consume(val HostsPair) {
 	if err != nil {
 		c.bar.IncrementError()
 		c.log.Errorf(val.RelURL, err)
+		appendMsgError(val.RelURL)
 		return
 	}
 
@@ -52,6 +62,7 @@ func (c *consumer) Consume(val HostsPair) {
 	if err != nil {
 		c.bar.IncrementError()
 		c.log.Errorf(val.RelURL)
+		appendMsgError(val.RelURL)
 		return
 	}
 
@@ -63,6 +74,7 @@ func (c *consumer) Consume(val HostsPair) {
 	if !Equal(leftJSON, rightJSON) {
 		c.bar.IncrementError()
 		c.log.Warnf(val.RelURL)
+		appendMsgError(val.RelURL)
 		return
 	}
 

@@ -4,7 +4,7 @@
 
 ##### Constants
 
-AUTH_TOKEN="b1911bf99c5c32b0c151095a9f956ece09801dc3eaaa966a0e2911e23df7c4a8"
+AUTH_TOKEN="8b2e19e9f224ce2fab8a682672e072fdef5c3aa0ea9752a680cf23529ef2b293"
 SCOPE_1="https://read-batch_payment-methods.furyapps.io"
 SCOPE_2="https://production-reader-testscope_payment-methods-read-v2.furyapps.io"
 ARRAY_PATHS=(

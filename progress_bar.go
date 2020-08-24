@@ -48,7 +48,7 @@ func (p *ProgressBar) Start() {
 	p.okPb.Start()
 }
 
-func (p *ProgressBar) Stop(fileLogName string) {
+func (p *ProgressBar) Stop() {
 	wg := new(sync.WaitGroup)
 	for _, bar := range []*pb.ProgressBar{p.okPb, p.errorPb} {
 		wg.Add(1)
@@ -60,28 +60,18 @@ func (p *ProgressBar) Stop(fileLogName string) {
 	wg.Wait()
 	// close pool
 	_ = p.pool.Stop()
-	processParametersCuttings(fileLogName)
+	processParametersCuttings()
 }
 
-func processParametersCuttings(fileLogName string) {
-	file, err := os.Open(fileLogName)
-	if err != nil {
-		panic("Error in " + fileLogName)
-	}
-	dir := fileLogDir + "/total.error"
-	fileErrorTotal, _ := os.Create(dir)
-	scanner := bufio.NewScanner(file)
+func processParametersCuttings() {
+	logFileErrorTotal, _ := os.Open(logFileErrorNameTotal)
+	logFileErrorTotal.Seek(0, 0)
+	scanner := bufio.NewScanner(logFileErrorTotal)
 
 	var countError = 0
 
 	for scanner.Scan() {
-		lineTemp := scanner.Text()
-		line := lineTemp[47 : len(lineTemp)-2]
-
-		w := bufio.NewWriter(fileErrorTotal)
-		fmt.Fprintln(w, line)
-		w.Flush()
-
+		line := scanner.Text()
 		for _, parameter := range opts.parametersCutting {
 			if strings.Contains(line, parameter) {
 				file := mapFiles[parameter+"-error"]
@@ -93,19 +83,19 @@ func processParametersCuttings(fileLogName string) {
 		countError++
 	}
 
-	dir = fileLogDir + "/error-summary.csv"
+	dir := fileLogDir + "/error-summary.csv"
 	fileSummary, _ := os.Create(dir)
 	w := bufio.NewWriter(fileSummary)
 	fmt.Fprintln(w, fmt.Sprintln("CORTE,CORRECTOS,INCORRECTOS,%CORRECTOS,%INCCORRECTOS"))
-	percentageOk, percentageError := getPercentage(countError, countTotal)
-	fmt.Fprintln(w, fmt.Sprintln("TOTAL,", countTotal, ",", countError, ",", percentageOk, ",", percentageError))
+	percentageOk, percentageError := getPercentage(countError, totalLines)
+	fmt.Fprintln(w, fmt.Sprintln("TOTAL,", totalLines, ",", countError, ",", percentageOk, ",", percentageError))
 	w.Flush()
 
 	for _, parameter := range opts.parametersCutting {
-		countTotalOk := getCountRows(parameter + "-src")
+		countTotal := getCountRows(parameter + "-src")
 		countTotalError := getCountRows(parameter + "-error")
-		percentageOk, percentageError := getPercentage(countTotalError, countTotalOk)
-		fmt.Fprintln(w, fmt.Sprintln(strings.ToUpper(parameter), ",", countTotalOk, ",", countTotalError, ",", percentageOk, ",", percentageError))
+		percentageOk, percentageError := getPercentage(countTotalError, countTotal)
+		fmt.Fprintln(w, fmt.Sprintln(strings.ToUpper(parameter), ",", countTotal, ",", countTotalError, ",", percentageOk, ",", percentageError))
 		w.Flush()
 	}
 
@@ -116,17 +106,16 @@ func processParametersCuttings(fileLogName string) {
 }
 
 func getPercentage(totalError int, total int) (string, string) {
-	var percentageError float64
-	var percentageOk float64
-	if totalError != 0 && total != 0 {
+	var totalOk = total - totalError
+	var percentageError float64 = 0
+	var percentageOk float64 = 0
+
+	if totalError != 0 {
 		percentageError = float64(totalError) * 100 / float64(total)
-		percentageOk = float64(100) - percentageError
-	}else if totalError == 0 && total != 0 {
-		percentageError = float64(0)
-		percentageOk = float64(100) - percentageError
-	}else if totalError == 0 && total == 0 {
-		percentageError = float64(0)
-		percentageOk = float64(0)
+	}
+
+	if totalOk != 0 {
+		percentageOk = float64(totalOk) * 100 / float64(total)
 	}
 
 	return fmt.Sprintf("%.2f", percentageOk), fmt.Sprintf("%.2f", percentageError)

@@ -16,10 +16,12 @@ import (
 )
 
 var fileLogDir string
-var fileLogName string
+var logFileErrorNameTotal string
+var logFileErrorTotal *os.File
 var mapFiles = make(map[string]*os.File)
 var opts *options
 var countTotal int
+var writeFinalErrorFile *bufio.Writer
 
 func main() {
 	initLogger()
@@ -155,7 +157,7 @@ func action(c *cli.Context) error {
 	p := New(reader, producer, comparator)
 
 	p.Run(ctx)
-	bar.Stop(fileLogName)
+	bar.Stop()
 	return nil
 }
 
@@ -195,12 +197,18 @@ func createTmpFile(filePath string, callerScope string) *os.File {
 	fileLogDir = fileLogDir + "/" + chanelScope
 	os.Mkdir(fileLogDir, os.FileMode(int(0777)))
 
-	fileLogName = fmt.Sprintf("%s/%s.error", fileLogDir, strings.TrimSuffix(file, filepath.Ext(file)))
-
+	fileLogName := fmt.Sprintf("%s/%s.error", fileLogDir, strings.TrimSuffix(file, filepath.Ext(file)))
 	logFileGeneral, err := os.Create(fileLogName)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	logFileErrorNameTotal = fmt.Sprintf("%s/total.error", fileLogDir)
+	logFileErrorTotal, err := os.Create(logFileErrorNameTotal)
+	if err != nil {
+		log.Fatal(logFileErrorTotal, err)
+	}
+	writeFinalErrorFile = bufio.NewWriter(logFileErrorTotal)
 	return logFileGeneral
 }
 
