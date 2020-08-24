@@ -139,6 +139,6 @@ done
 
 ```
 
-#### `Terminal summary by parameters cuts`
+#### `Terminal summary according to requested cuts`
 
 ![](termina-summary.png)
