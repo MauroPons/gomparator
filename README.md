@@ -41,7 +41,7 @@ Targeted hosts. Exactly 2 hosts must be specified. eg: --host 'http://host1.com 
 Headers to be used in the http call
 
 #### `--ratelimit value, -r value`
-Operation rate limit per second (default: 67)
+Operation rate limit per second (default: 67 - 4 krpm aprox.)
 
 #### `--workers value, -w value`
 Number of workers running concurrently (default: 1000)
