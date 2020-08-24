@@ -14,7 +14,9 @@ ARRAY_PATHS=(
 	"/Users/mpons/Documents/comparator/payment-methods/v2/2_24-08-2020_28-08-2020/202008-10-15/NONE/MCO/MCO.error"
 	) 
 
-ARRAY_CHANNELS=("" "point" "splitter" "instore")
+#ARRAY_CHANNELS=("" "point" "splitter" "instore")
+ARRAY_CHANNELS=("")
+
 for i in "${ARRAY_PATHS[@]}"
 do
 	for j in "${ARRAY_CHANNELS[@]}"
