@@ -120,10 +120,10 @@ AUTH_TOKEN="8b2e19e9f224ce2fab8a682672e072fdef5c3aa0ea9752a680cf23529ef2b293"
 SCOPE_1="https://read-batch_payment-methods.furyapps.io"
 SCOPE_2="https://production-reader-testscope_payment-methods-read-v2.furyapps.io"
 ARRAY_PATHS=(
-	"/Users/mpons/Documents/comparator/payment-methods/v2/2_24-08-2020_28-08-2020/202008-10-15/MELI/MLM/MLM.error"
-	"/Users/mpons/Documents/comparator/payment-methods/v2/2_24-08-2020_28-08-2020/202008-10-15/MELI/MCO/MCO.error"
-	"/Users/mpons/Documents/comparator/payment-methods/v2/2_24-08-2020_28-08-2020/202008-10-15/NONE/MLM/MLM.error"
-	"/Users/mpons/Documents/comparator/payment-methods/v2/2_24-08-2020_28-08-2020/202008-10-15/NONE/MCO/MCO.error"
+	"/PATH/MELI/MLM/MLM.csv"
+	"/PATH/MELI/MCO/MCO.csv"
+	"/PATH/NONE/MLM/MLM.csv"
+	"/PATH/NONE/MCO/MCO.csv"
 	) 
 
 #ARRAY_CHANNELS=("" "point" "splitter" "instore")
