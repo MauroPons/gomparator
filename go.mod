@@ -3,6 +3,7 @@ module github.com/MauroPons/gomparator
 go 1.14
 
 require (
+	github.com/faiface/beep v1.0.2
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/hashicorp/go-retryablehttp v0.6.6
 	github.com/mattn/go-colorable v0.1.7 // indirect
