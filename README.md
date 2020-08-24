@@ -107,7 +107,7 @@ Given the following json input:
 </tbody></table>
 
 #### `Run consecutives comparations`
-Create a sh file with the next code
+Create a sh file with the next code and change vars values. ;) 
 
 ```console
 #!/bin/bash
