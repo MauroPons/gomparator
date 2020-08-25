@@ -88,14 +88,14 @@ func processParametersCuttings() {
 	w := bufio.NewWriter(fileSummary)
 	fmt.Fprintln(w, fmt.Sprintln("CORTE,CORRECTOS,INCORRECTOS,%CORRECTOS,%INCCORRECTOS"))
 	percentageOk, percentageError := getPercentage(countError, totalLines)
-	fmt.Fprintln(w, fmt.Sprintln("TOTAL,", totalLines, ",", countError, ",", percentageOk, ",", percentageError))
+	fmt.Fprintln(w, fmt.Sprintln("TOTAL,", (totalLines - countError), ",", countError, ",", percentageOk, ",", percentageError))
 	w.Flush()
 
 	for _, parameter := range opts.parametersCutting {
 		countTotal := getCountRows(parameter + "-src")
 		countTotalError := getCountRows(parameter + "-error")
 		percentageOk, percentageError := getPercentage(countTotalError, countTotal)
-		fmt.Fprintln(w, fmt.Sprintln(strings.ToUpper(parameter), ",", countTotal, ",", countTotalError, ",", percentageOk, ",", percentageError))
+		fmt.Fprintln(w, fmt.Sprintln(strings.ToUpper(parameter), ",", (countTotal - countTotalError), ",", countTotalError, ",", percentageOk, ",", percentageError))
 		w.Flush()
 	}
 
