@@ -265,7 +265,7 @@ func parseFlags(c *cli.Context) *options {
 		log.Fatal("invalid number of hosts provided")
 	}
 
-	opts.filePath = c.String("path")
+	opts.filePath = formatPath(c.String("path"))
 	opts.headers = c.StringSlice("header")
 	opts.timeout = c.Duration("timeout")
 	opts.duration = c.Duration("duration")
@@ -280,6 +280,15 @@ func parseFlags(c *cli.Context) *options {
 	}
 	opts.exclude = c.String("exclude")
 	return opts
+}
+
+func formatPath(path string) string {
+	var finalPath string = path
+	firstCharacter :=  finalPath[0:1]
+	if firstCharacter != "/" {
+		finalPath = "/" + finalPath
+	}
+	return finalPath
 }
 
 func parseHeaders(h []string) map[string]string {
